@@ -1,34 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useCalendar } from './hooks/useCalendar'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const {
+    currentYear,
+    currentMonth,
+    days,
+    goToPreviousMonth,
+    goToNextMonth,
+  } = useCalendar()
+
+  const monthName = new Date(currentYear, currentMonth).toLocaleString(
+    'es-AR',
+    { month: 'long' }
+  )
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div style={{ padding: 20 }}>
+      <h1>Calendario familiar</h1>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button onClick={goToPreviousMonth}>◀</button>
+        <h2>
+          {monthName} {currentYear}
+        </h2>
+        <button onClick={goToNextMonth}>▶</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          gap: 10,
+          marginTop: 20,
+        }}
+      >
+        {days.map(day => (
+          <div
+            key={day.date.toISOString()}
+            style={{
+              border: '1px solid #ccc',
+              padding: 10,
+              minHeight: 80,
+            }}
+          >
+            <strong>{day.dayNumber}</strong>
+            <div>{day.assignedTo}</div>
+          </div>
+        ))}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 

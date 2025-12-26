@@ -1,6 +1,10 @@
 import { useState } from 'react'
-import { generateMonthDays } from '../utils/dateUtils'
-import { BASE_SCHEDULE } from '../utils/scheduleRules'
+import { generateMonthDays, getWeekKey } from '../utils/dateUtils'
+import {
+  BASE_SCHEDULE,
+  getDisplacedPerson,
+} from '../utils/scheduleRules'
+import { usePapaFrancos } from './useOverrides'
 
 export function useCalendar() {
   const today = new Date()
@@ -8,29 +12,43 @@ export function useCalendar() {
   const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [currentMonth, setCurrentMonth] = useState(today.getMonth())
 
-  // Genera los días del mes con persona asignada
-  const days = monthDays.map(day => {
-  const weekKey = getWeekKey(day.date)
-  const baseAssignment = BASE_SCHEDULE[day.dayOfWeek]
+  // Francos del papá desde Supabase (agrupados por semana)
+  const francosByWeek = usePapaFrancos()
 
-  // Si no es jueves, usar asignación base
-  if (baseAssignment !== 'comodin') {
+  // Días del mes
+  const monthDays = generateMonthDays(currentYear, currentMonth)
+
+  // Asignación final por día
+  const days = monthDays.map(day => {
+    const weekKey = getWeekKey(day.date)
+    const baseAssignment = BASE_SCHEDULE[day.dayOfWeek]
+
+    // Si no es jueves → asignación fija
+    if (baseAssignment !== 'comodin') {
+      return {
+        ...day,
+        assignedTo: baseAssignment,
+      }
+    }
+
+    // Jueves → siempre reasignado según franco del papá
+    const francoDate = francosByWeek[weekKey]
+
+    if (!francoDate) {
+      // fallback defensivo (no debería pasar)
+      return {
+        ...day,
+        assignedTo: 'comodin',
+      }
+    }
+
+    const displaced = getDisplacedPerson(francoDate.getDay())
+
     return {
       ...day,
-      assignedTo: baseAssignment,
+      assignedTo: displaced,
     }
-  }
-
-  // Jueves: siempre reasignado
-  const francoDate = francosByWeek[weekKey]
-  const displaced = getDisplacedPerson(francoDate.getDay())
-
-  return {
-    ...day,
-    assignedTo: displaced,
-  }
-})
-
+  })
 
   function goToPreviousMonth() {
     if (currentMonth === 0) {

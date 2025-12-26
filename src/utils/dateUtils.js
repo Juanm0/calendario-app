@@ -30,3 +30,21 @@ export function generateMonthDays(year, month) {
 
   return days
 }
+
+// Devuelve una clave única por semana (ISO-like, estable)
+export function getWeekKey(date) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+
+  // Jueves de la semana actual (ISO 8601)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+
+  const week1 = new Date(d.getFullYear(), 0, 4)
+  const weekNumber =
+    1 +
+    Math.round(
+      ((d - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7
+    )
+
+  return `${d.getFullYear()}-W${weekNumber}`
+}
