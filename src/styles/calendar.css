@@ -1,0 +1,37 @@
+.calendar {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-weekday {
+  font-weight: bold;
+  text-align: center;
+}
+
+.calendar-day {
+  border: 1px solid #ccc;
+  min-height: 70px;
+  padding: 4px;
+  font-size: 12px;
+}
+
+.day-number {
+  font-weight: bold;
+}
+
+.day-assignment {
+  margin-top: 4px;
+}
